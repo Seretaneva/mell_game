@@ -1,9 +1,11 @@
 ﻿################################################################################
 ## Initialization
 ################################################################################
+image mellstroy_vid = Movie(size=(1920,1080), play="videos/mel2y.webm", loop=True)
 
+define config.default_language = "russian"
 init offset = -1
-image casino = Movie(size=(1920,1080), play="videos/casino.mp4", loop=True)
+
 
 ################################################################################
 ## Styles
@@ -354,17 +356,12 @@ style navigation_button_text:
 screen main_menu():
 
     tag menu
-
-    # >>> fundal video în locul imaginii statice
-    add "casino"
-
-    # (opțional) întunecare subtilă pentru lizibilitate
-    #add Solid("#0006")
-
+    add "mellstroy_vid"                 # fundalul video
+    # add Solid("#00000066")     # (opțional) overlay ca textul să fie lizibil
     frame:
         style "main_menu_frame"
-
     use navigation
+    # ... restul meniului (titlu, versiune, etc.)
 
     if gui.show_name:
         vbox:
@@ -474,7 +471,7 @@ screen game_menu(title, scroll=None, yinitial=0.0, spacing=0):
 
     use navigation
 
-    textbutton _("Ret+urn"):
+    textbutton _("Назад"):
         style "return_button"
 
         action Return()
@@ -543,6 +540,7 @@ style return_button:
 ##
 ## There's nothing special about this screen, and hence it also serves as an
 ## example of how to make a custom screen.
+define gui.unscrollable = "hide"
 
 screen about():
 
@@ -564,7 +562,7 @@ screen about():
             if gui.about:
                 text "[gui.about!t]\n"
 
-            text _("Made with {a=https://www.renpy.org/}Ren'Py{/a} [renpy.version_only].\n\n[renpy.license!t]")
+
 
 
 style about_label is gui_label
@@ -642,7 +640,7 @@ screen file_slots(title):
 
                         add FileScreenshot(slot) xalign 0.5
 
-                        text FileTime(slot, format=_("{#file_time}%A, %B %d %Y, %H:%M"), empty=_("empty slot")):
+                        text FileTime(slot, format="%d.%m.%Y, %H:%M", empty="пустой слот"):
                             style "slot_time_text"
 
                         text FileSaveName(slot):

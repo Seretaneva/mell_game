@@ -31,18 +31,6 @@ init python:
     gui.name_text_font = gui.text_font
     gui.interface_text_font = gui.text_font
 
-    # --- DIMENSIUNI ---
-    gui.text_size = 34
-    gui.name_text_size = 46
-    gui.interface_text_size = 40
-    gui.label_text_size = 36
-    gui.title_text_size = 160
-
-    # --- MĂRIMI BARE/SLIDERE ---
-    gui.bar_size = 42
-    gui.slider_size = 42
-    gui.scrollbar_size = 18
-
     # --- DISTANȚE/UI ---
     gui.choice_spacing = 28
     gui.pref_spacing = 18
