@@ -58,13 +58,13 @@ init python:
     style.window.top_padding = 65
     style.window.bottom_padding = 30
 
-
+#----------------CHARACTERS------------------------------------------------------------
 # Leagă naratorul de stilul cu scriere lentă
 define e = Character(None, what_style="narr_what")
 define m = Character("Андрей", what_style="andrei_what", who_style="andrei_who")
 define f = Character("Брат",what_style="andrei_what", who_style="andrei_who")
 define me = Character("Mellstroy", what_style="andrei_what", who_style="andrei_who")
-
+define C = Character("Чат", color="#9fff9f", what_style="andrei_what")
 # Viteză de text de siguranță (în caz că jucătorul are „Instant”)
 define config.default_text_cps = 25
 
@@ -86,8 +86,56 @@ init python:
     style.window.right_padding = 30     # spațiu de la marginea dreaptă
     style.window.top_padding = 65       # spațiu sus
     style.window.bottom_padding = 30
+# =========================-------------------------------------------------------------------
+# STATS & FLAGS (NEW)
+# =========================
+default REP = 12
+default CASH = 250
+default CTRL = 6
 
-# Aliasuri audio (pune fișierele în game/audio/)
+default FLAG_CASINO = False      # серая интеграция активна
+default FLAG_CONFLICT = False    # был острый конфликт «на камеру»
+default FLAG_MEDIA = False       # появился интерес медиа/журнала
+default FLAG_NEIGHBORS = False   # соседи/управляющая компания давят
+default FLAG_VIRAL = False       # нарезка с вечеринки ушла в вирал
+
+# =========================
+# HUD (NEW)
+# =========================
+screen statbar():
+    frame:
+        align (0.02, 0.02)
+        has hbox
+        spacing 18
+        frame:
+            padding (10,6)
+            text "Репутация: [REP]" size 28
+        frame:
+            padding (10,6)
+            text "Деньги: [CASH]₽" size 28
+        frame:
+            padding (10,6)
+            text "Контроль: [CTRL]" size 28
+
+# Mic utilitar (opțional): limitează stats 0..99
+init python:
+    def clamp_stats():
+        global REP, CASH, CTRL
+        REP = max(0, min(99, REP))
+        CASH = max(0, min(999999, CASH))
+        CTRL = max(0, min(99, CTRL))
+
+# =========================
+# SFX helpers (opțional)
+# =========================
+define s_knock = "audio/knock_heavy.mp3"
+define s_notify = "audio/notify.mp3"
+define s_click  = "audio/click.wav"
+
+# =========================================
+# CONTINUAREA — după label choice_final_3_1
+# =========================================
+#----------------------------------------------------------------------------
 define audio.bg_m1    = "audio/bg_m1.ogg"
 define audio.bg2 = "audio/bg2.mp3"
 define audio.audio1nr = "audio/audio1nr.ogg"
@@ -106,6 +154,7 @@ define audio.sad1 = "audio/sad1.mp3"
 define audio.ring = "audio/ring.mp3"
 define audio.party_music = "audio/party_music.mp3"
 define audio.am = "audio/am.mp3"
+define audio.click = "audio/click.mp3"
 # =========================================================
 # TRANZIȚII
 # =========================================================
@@ -431,14 +480,171 @@ label start:
          jump choice_final_3_1
 
     label choice_3_3_2:
-         e "Девушка с выражением недоумения: "
-         e "— Что ты имеешь в виду?"
+         $ renpy.movie_cutscene("videos/crug.webm")
          play sound am fadein 0.70
-         me "— Да я сам с собой разговариваю, успокойся нахуй."
+         $ REP += 2
          jump choice_final_3_1
 
     label choice_final_3_1:
-         
+  #------------------------------------------------------------------------------------------------
+
+    # dacă a fost show dur sau glumă: setăm un „impuls” și mergem mai departe
+        if not FLAG_VIRAL:
+            $ FLAG_VIRAL = True
+            $ REP += 2
+            $ CASH += 120
+            $ clamp_stats()
+            C "КЛИПАЙ! КЛИПАЙ! Это разлетится!"
+
+
+        stop music fadeout 1.0
+        play sound s_knock
+
+    e "Глухой, настойчивый стук в дверь. Музыка будто сама стихает, камеры продолжают писать."
+    m "Кто там, мать его?.."
+    C "ОТКРОЙ! ОТКРОЙ!"
+
+    e "Как Андрей действует?"
+    menu:
+            "Открыть на стриме — показать силу и контроль (риск)":
+                $ REP += 1
+                $ CTRL -= 1
+                $ FLAG_CONFLICT = True
+                $ clamp_stats()
+                jump door_public
+
+            "Выключить эфир, решить тихо":
+                $ CTRL += 2
+                $ REP += 1
+                $ clamp_stats()
+                jump door_private
+
+            "Позвонить промоутеру за «помощью»":
+                if FLAG_CASINO:
+                    $ CASH -= 50
+                    $ CTRL += 1
+                    $ REP -= 1
+                    $ clamp_stats()
+                    jump door_handler
+                else:
+                    "Андрей набирает номер... но вспоминает — {i}он отказался от сделки{/i}."
+                    jump door_private
+
+# ---------- 1) PUBLIC (шоу) ----------
+    label door_public:
+        play music party_music fadein 0.7
+        show neighbor at right:
+             xysize (500, 800)
+        with moveinright
+
+        e "Ты распахиваешь дверь. На пороге стоит сосед — злой, в халате, с телефоном в руке."
+        $ FLAG_NEIGHBORS = True
+
+        "Сосед" "Вы что, бл**? Ночь на дворе! Это что за цирк, мать вашу?!"
+
+
+
+        C "ООООО! ЖЕСТЬ ПРИШЛА!"
+        # mini-choice în fața publicului
+    menu:
+        "Держать рамку, предложить компромисс.":
+            $ CTRL += 2
+            $ CASH -= 100
+            $ REP += 1
+            $ clamp_stats()
+            me "Так, бл**, хватит кипеть. Музыку убавлю, людей разгоню — всё, вопрос решён."
+            "Сосед" "Ладно... только чтоб без этого больше."
+            me "Будет тихо. Не кипятись, живём рядом — без цирка."
+            "Сосед" "Окей..."
+            e "Сосед уходит, дверь захлопывается. В квартире снова гул и свет ламп."
+            hide neighbor
+            jump post_door
+
+
+        "Резко отвечать, давить статусом (риск скандала)":
+            $ REP += 2
+            $ CTRL -= 2
+            $ clamp_stats()
+            me "Ты чё несёшь, бл**? Это мою хату и эфир трогать нельзя, понял ?"
+            "Сосед" "Ты на кого голос поднимаешь? Сейчас полицию вызову, понял?!"
+            me "Давай, зови! Мне скрывать нечего. Только потом не ной, когда сам на стрим попадёшь!"
+
+            C "ЩАС БУДЕТ!"
+            hide neighbor
+            jump post_door
+
+# ---------- 2) PRIVATE (де-эскалация) ----------
+    label door_private:
+        play sound click
+        e "Ты тихо отключаешь стрим. Экран гаснет, лампа мерцает."
+        play sound knock_heavy
+        e "Стук в дверь. За порогом слышен раздражённый голос."
+        show neighbor at right:
+             xysize (500, 800)
+        with moveinright
+        "Сосед" "Эй, ты там! Полночь, бл**! Музыку прикрути уже!"
+        me "Успокойся, сосед. Всё, тише делаем, люди уходят."
+        "Сосед" "Каждую ночь одно и то же! Мы тебе не клуб под окном держим!"
+        me "Я понял, бл**, хватит орать. Всё, вопрос закрыт. Иди спи спокойно."
+        $ CTRL += 1
+        $ CASH -= 80
+        $ REP += 1
+        $ clamp_stats()
+        hide neighbor
+        jump post_door
+
+# ---------- 3) HANDLER (серый компромисс) ----------
+    label door_handler:
+        "Ты шепотом даёшь сигнал промоутеру. Через десять минут подъезжает «решала»."
+        "Решала" "Сейчас разберёмся. Официально — вы талант, не проблема. Неофициально — вот купоны на такси для подъезда, извиняемся."
+        $ CASH -= 150
+        $ CTRL += 1
+        $ REP -= 1
+        $ clamp_stats()
+        show neighbor at right:
+             xysize (500, 800)
+        with moveinright
+        "Сосед" "Ладно. Только если сегодня — конец."
+        hide neighbor
+        jump post_door
+
+# ---------- POST DOOR: финальная раздача и хук ----------
+    label post_door:
+        stop music fadeout 1.0
+
+    # Бонус/штраф в зависимости de cum a mers
+    if REP >= 15 and CTRL >= 7:
+        "На утро сторис у местных пабликов: «Как провести вечеринку и не поссориться со всем домом»."
+        $ CASH += 200
+        $ FLAG_MEDIA = True
+        $ clamp_stats()
+    elif CTRL <= 3:
+        "В телеграм-чатах дома начинается обсуждение: скрины, теги, угрозы жалоб."
+        $ REP -= 1
+        $ clamp_stats()
+
+    # Короткая сцена послевкусия
+    scene dark_room with slow_dissolve
+    play music sad1 fadein 0.8
+    e "Квартира затихает. Пластик стаканов, запах сладкой колы и дешёвых духов. Андрей сидит напротив чёрного монитора."
+    me "Всё это похоже на контроль. Но на самом деле — это тонкая грань. Один неверный шаг — и ты просто шум."
+    if FLAG_VIRAL:
+        C "НАРЕЗКИ В ТРЕНДАХ! «Момент с дверью» — ТОП!"
+        $ REP += 1
+        $ clamp_stats()
+
+    # Клиффхэнгер к следующей главе
+    e "Телефон вибрирует. Номер неизвестен."
+    "Голос" "Привет, Андрей. Видели твой эфир. Есть предложение. Не телик, не радио. Крупнее. Встретимся?"
+    me "(внутри) Игра становится дороже. Вопрос — кто платит чек."
+    stop music fadeout 1.3
+
+    scene black with fade
+    centered "{size=70}{=centered_narr}Глава III — завершена{/centered_narr}{/size}"
+    $ persistent.REP_ch2 = REP
+    $ persistent.CASH_ch2 = CASH
+    $ persistent.CTRL_ch2 = CTRL
+
 
 
     return
