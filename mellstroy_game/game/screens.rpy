@@ -2,9 +2,12 @@
 ## Initialization
 ################################################################################
 image mellstroy_vid = Movie(size=(1920,1080), play="videos/mel2y.webm", loop=True)
+label before_main_menu:
+    $ _preferences.language = "russian"
+    return
 
-define config.default_language = "russian"
 init offset = -1
+
 
 
 ################################################################################
@@ -792,14 +795,14 @@ screen preferences():
                             if config.sample_sound:
                                 textbutton _("Тест") action Play("sound", config.sample_sound)
 
-                    if config.has_voice:
-                        label _("Громкость голоса")
+                    if config.has_voice:  # poți pune o condiție proprie, sau păstrezi config.has_voice dacă vrei
+                        label _("Громкость повествования")
 
                         hbox:
                             bar value Preference("voice volume")
 
-                            if config.sample_voice:
-                                textbutton _("Тест") action Play("voice", config.sample_voice)
+                            textbutton _("Тест") action Play("narration", "audio/audio1nr.ogg")
+
 
                     if config.has_music or config.has_sound or config.has_voice:
                         null height gui.pref_spacing
@@ -1399,7 +1402,7 @@ style nvl_dialogue:
     xsize gui.nvl_text_width
     min_width gui.nvl_text_width
     textalign gui.nvl_text_xalign
-    layout ("subtitle" if gui.nvl_text_xalign else "tex")
+    layout ("subtitle" if gui.nvl_text_xalign else "text")
 
 style nvl_thought:
     xpos gui.nvl_thought_xpos
@@ -1408,7 +1411,7 @@ style nvl_thought:
     xsize gui.nvl_thought_width
     min_width gui.nvl_thought_width
     textalign gui.nvl_thought_xalign
-    layout ("subtitle" if gui.nvl_text_xalign else "tex")
+    layout ("subtitle" if gui.nvl_text_xalign else "text")
 
 style nvl_button:
     properties gui.button_properties("nvl_button")

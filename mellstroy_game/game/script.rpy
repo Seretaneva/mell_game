@@ -1,4 +1,8 @@
-﻿init python:
+﻿label splashscreen:
+    $ _preferences.language = "russian"
+    return
+
+init python:
     # Font global + contur
     style.default.font = "fonts/DejaVuSans.ttf"
     style.default.outlines = [(2, "#000000", 0, 0)]
@@ -67,11 +71,15 @@ define config.default_text_cps = 25
 # =========================================================
 # CANALE & AUDIO
 # =========================================================
-init python:
-    # Canal VO narator (nu e legat de dialog, fără loop)
-    renpy.music.register_channel("narration", "sfx", loop=False, buffer_queue=True)
-    renpy.music.set_volume(1.0, channel="narration")
 
+init python:
+    renpy.music.register_channel(
+        "narration",   # numele canalului tău
+        "voice",       # tipul canalului => folosește aceleași setări ca Voice
+        loop=False,
+        tight=False,   # pentru voice-over narațiune lungă
+        buffer_queue=True
+    )
 init python:
     # Padding pentru textbox
     style.window.left_padding = 70      # spațiu de la marginea stângă
@@ -122,9 +130,9 @@ label start:
     pause 1
 
     # INTRO NARAȚIUNE + MUZICĂ
-    play narration audio1nr
-    play music bg2 fadein 1.0
 
+    play music bg2 fadein 1.0
+    play narration audio1nr
 
     show text _("{size=40}{color=#FFFFFF}{=centered_narr}Каждый город хранит свои истории.{/=centered_narr}{/color}{/size}") at truecenter
     with fade

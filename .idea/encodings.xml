@@ -3,5 +3,7 @@
   <component name="Encoding">
     <file url="file://$PROJECT_DIR$/mellstroy_game/game/audio/audio1.mp3" charset="UTF-16" />
     <file url="file://$PROJECT_DIR$/mellstroy_game/game/audio/audio_1.mp3" charset="UTF-16" />
+    <file url="file://$PROJECT_DIR$/mellstroy_game/game/gui.rpyc" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/mellstroy_game/game/script.rpyc" charset="UTF-8" />
   </component>
 </project>

@@ -4,7 +4,6 @@
 ## them. Lines beginning with a single '#' mark are commented-out code, and you
 ## may want to uncomment them when appropriate.
 
-
 ## Basics ######################################################################
 define config.main_menu_music = "audio/menu_music.mp3"    # sau "menu_music" dacă ai alias audio.
 define config.main_menu_music_fadein = 1.0
@@ -16,11 +15,12 @@ define config.main_menu_music_fadein = 1.0
 define config.name = _("Mellstroy.game")
 define config.default_text_cps = 35
 
+
+
 ## Determines if the title given above is shown on the main menu screen. Set
 ## this to False to hide the title.
 
 define gui.show_name = True
-
 
 ## The version of the game.
 
