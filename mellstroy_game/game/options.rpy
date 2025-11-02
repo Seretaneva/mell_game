@@ -143,9 +143,10 @@ default preferences.afm_time = 15
 ##
 ## This generally should not be changed, and if it is, should always be a
 ## literal string, not an expression.
-
+init python:
+    _preferences.language = "russian"
 define config.save_directory = "mellstroy_game-1761065663"
-
+define config.language = "russian"
 
 ## Icon ########################################################################
 ##

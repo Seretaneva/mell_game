@@ -117,7 +117,7 @@ define slow_dissolve = Dissolve(1.0)
 label start:
 
     $ renpy.music.set_volume(0.5, channel='music')
-
+    stop music fadeout 2
     scene black
     with fade
     window hide
@@ -375,11 +375,10 @@ label start:
         e "Экран тускнеет. Андрей выключает комп и садится в тишине."
         jump choice_final_2
 
-
-
     label choice_final_2:
         m "Если людям нравится бардак... значит, я устрою им шоу. Настоящее."
     stop music fadeout 2
+
     #------------------------------------------CAP3
     scene black
     show text _("{size=70}{=centered_narr}Глава III — Игра началась{/=centered_narr}{/size}") at truecenter
