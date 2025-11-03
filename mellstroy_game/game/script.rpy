@@ -21,11 +21,17 @@ init python:
     style.andrei_who.bold = True
     # atenție: poziția namebox-ului se face prin gui.name_*, nu aici
 
+
     style.andrei_what = Style(style.say_dialogue)
-    style.andrei_what.color = "#ffffff"   # culoarea replicilor
-    style.andrei_what.size = 40
+    style.andrei_what.color = "#ffffff"
+    style.andrei_what.size = 35
+    style.andrei_what.slow_cps = 25
     style.andrei_what.outlines = [(2, "#000000", 0, 0)]
-    style.andrei_what.top_margin = 30     # „mai jos” față de namebox
+    style.andrei_what.top_margin = 30
+
+    # nou:
+    style.andrei_what.justify = True      # întinde rândurile până la marginea dreaptă
+    style.andrei_what.text_align = 0.0    # păstrează începutul la stânga (implicit)
 
     # Titluri centrate
     style.centered_narr = Style(style.default)
@@ -50,6 +56,10 @@ define gui.name_xalign = 0.0
 # replicile (what) pe aceeași coloană cu numele, dar mai jos
 define gui.dialogue_xpos = 200
 define gui.dialogue_ypos = 50     # coboară textul în box
+  # ajustează în funcție de lățimea totală a ecranului
+
+
+
 
 init python:
     # Padding în textbox
@@ -80,13 +90,7 @@ init python:
         tight=False,   # pentru voice-over narațiune lungă
         buffer_queue=True
     )
-init python:
-    # Padding pentru textbox
-    style.window.left_padding = 70      # spațiu de la marginea stângă
-    style.window.right_padding = 30     # spațiu de la marginea dreaptă
-    style.window.top_padding = 65       # spațiu sus
-    style.window.bottom_padding = 30
-# =========================-------------------------------------------------------------------
+#-------------------------------------------------------
 # STATS & FLAGS (NEW)
 # =========================
 default REP = 12
@@ -155,6 +159,11 @@ define audio.ring = "audio/ring.mp3"
 define audio.party_music = "audio/party_music.mp3"
 define audio.am = "audio/am.mp3"
 define audio.click = "audio/click.mp3"
+define audio.baclajan = "audio/baclajan.mp3"
+define audio.badlo = "audio/badlo.mp3"
+define audio.dictuesh = "audio/dictuesh.mp3"
+define audio.patzan = "audio/patzan.mp3"
+define audio.krasnii = "audio/krasnii.mp3"
 # =========================================================
 # TRANZIȚII
 # =========================================================
@@ -288,8 +297,8 @@ label start:
 
     show mellstroy at left:
         xysize (800, 1000)
-        linear 1.0 xalign 0.05
-    with move
+
+    with moveinleft
 
     m "Кто поставил сюда коробку?"
 
@@ -341,8 +350,8 @@ label start:
 
         show mellstroy at left:
             xysize (800, 1000)
-            linear 1.0 xalign 0.05
-        with moveoutleft
+
+        with moveinleft
 
     play sound comp_s1 fadein 1
 
@@ -362,7 +371,7 @@ label start:
     e"Он запускает Dota 2. Первые минуты тихие, зрителей нет."
 
     m "Так... играем, как есть."
-    play sound yeah
+    play sound suka
     e"Через несколько минут он проигрывает катку."
 
 
@@ -385,7 +394,7 @@ label start:
          jump choice_final_2_2
 
     label choice_2_2_2:
-        play sound stop
+        play sound krasnii
         m "Да что за хуйня?!"
         e "Он срывается, ударяет по столу. В чате — первый донат."
         m "Эм... донат? За эту хуйню?!.."
@@ -539,7 +548,7 @@ label start:
 
         e "Ты распахиваешь дверь. На пороге стоит сосед — злой, в халате, с телефоном в руке."
         $ FLAG_NEIGHBORS = True
-
+        play sound baclajan fadein 0.5
         "Сосед" "Вы что, бл**? Ночь на дворе! Это что за цирк, мать вашу?!"
 
 
@@ -565,9 +574,15 @@ label start:
             $ REP += 2
             $ CTRL -= 2
             $ clamp_stats()
+
+            play sound badlo fadein 0.5
             me "Ты чё несёшь, бл**? Это мою хату и эфир трогать нельзя, понял ?"
+            stop sound
+
+            play sound patzan fadein 0.5
             "Сосед" "Ты на кого голос поднимаешь? Сейчас полицию вызову, понял?!"
             me "Давай, зови! Мне скрывать нечего. Только потом не ной, когда сам на стрим попадёшь!"
+            stop sound
 
             C "ЩАС БУДЕТ!"
             hide neighbor
@@ -582,7 +597,9 @@ label start:
         show neighbor at right:
              xysize (500, 800)
         with moveinright
+        play sound patzan fadein 0.5
         "Сосед" "Эй, ты там! Полночь, бл**! Музыку прикрути уже!"
+
         me "Успокойся, сосед. Всё, тише делаем, люди уходят."
         "Сосед" "Каждую ночь одно и то же! Мы тебе не клуб под окном держим!"
         me "Я понял, бл**, хватит орать. Всё, вопрос закрыт. Иди спи спокойно."
@@ -595,7 +612,7 @@ label start:
 
 # ---------- 3) HANDLER (серый компромисс) ----------
     label door_handler:
-        "Ты шепотом даёшь сигнал промоутеру. Через десять минут подъезжает «решала»."
+        e "Ты шепотом даёшь сигнал промоутеру. Через десять минут подъезжает «решала»."
         "Решала" "Сейчас разберёмся. Официально — вы талант, не проблема. Неофициально — вот купоны на такси для подъезда, извиняемся."
         $ CASH -= 150
         $ CTRL += 1
@@ -611,22 +628,24 @@ label start:
 # ---------- POST DOOR: финальная раздача и хук ----------
     label post_door:
         stop music fadeout 1.0
-
+        scene room4 at truecenter:
+            xysize (1920, 1080)
+    with fade
     # Бонус/штраф в зависимости de cum a mers
     if REP >= 15 and CTRL >= 7:
-        "На утро сторис у местных пабликов: «Как провести вечеринку и не поссориться со всем домом»."
+        e "На утро сторис у местных пабликов: «Как провести вечеринку и не поссориться со всем домом»."
         $ CASH += 200
         $ FLAG_MEDIA = True
         $ clamp_stats()
     elif CTRL <= 3:
-        "В телеграм-чатах дома начинается обсуждение: скрины, теги, угрозы жалоб."
+        e  "В телеграм-чатах дома начинается обсуждение: скрины, теги, угрозы жалоб."
         $ REP -= 1
         $ clamp_stats()
 
     # Короткая сцена послевкусия
-    scene dark_room with slow_dissolve
     play music sad1 fadein 0.8
-    e "Квартира затихает. Пластик стаканов, запах сладкой колы и дешёвых духов. Андрей сидит напротив чёрного монитора."
+
+    e  "Квартира затихает. Пластик стаканов, запах сладкой колы и дешёвых духов. Андрей сидит напротив чёрного монитора."
     me "Всё это похоже на контроль. Но на самом деле — это тонкая грань. Один неверный шаг — и ты просто шум."
     if FLAG_VIRAL:
         C "НАРЕЗКИ В ТРЕНДАХ! «Момент с дверью» — ТОП!"
@@ -634,7 +653,9 @@ label start:
         $ clamp_stats()
 
     # Клиффхэнгер к следующей главе
+    play sound ring
     e "Телефон вибрирует. Номер неизвестен."
+    stop sound
     "Голос" "Привет, Андрей. Видели твой эфир. Есть предложение. Не телик, не радио. Крупнее. Встретимся?"
     me "(внутри) Игра становится дороже. Вопрос — кто платит чек."
     stop music fadeout 1.3
@@ -645,6 +666,166 @@ label start:
     $ persistent.CASH_ch2 = CASH
     $ persistent.CTRL_ch2 = CTRL
 
+    # =========================
+# ГЛАВА IV — «Цена шума»-----------------------------------------------------------------------------------
+# Сильная слава → срыв → последствия
+# =========================
+
+# Новые флаги для сюжета
+default FLAG_LEGAL = False        # пошёл юридический процесс
+default FLAG_APOLOGY = False      # сделал извинение
+default FLAG_BAN = False          # платформа/площадки ввели ограничения
+default FLAG_BREAK = False        # объявил паузу/рефлексии
+
+label chapter4:
+
+    scene black
+    show text _("{size=70}{=centered_narr}Глава IV — Цена шума{/=centered_narr}{/size}") at truecenter
+    with fade
+    pause 2
+    hide text
+
+    # Он уже «на вершине»
+    scene party at truecenter:
+        xysize (1920,1080)
+    play music party_music fadein 1.0
+    show screen statbar
+
+    e "Вечер. Онлайны бьют рекорды. Комната — как студия: свет, камеры, люди. Донаты летят, чат трещит."
+    C "ГОСТЕЙ БОЛЬШЕ! ДВИЖ!"
+    C "ТОП МОМЕНТЫ, ПОГНАЛИ!"
+    me "Сегодня делаем громче. Вы хотели шоу — получите. Без тормозов."
+
+    # Разгон — напряжение растёт
+    "Гость" "Ну что, ставки? Танец, челлендж, импров?"
+    me "Делаем импров. Кто не тянет — уходит из кадра. Всё честно."
+    e "Смех, толчки локтями, телефоны, вспышки. Ритм ускоряется. Андрей на грани — энергетика давит изнутри."
+
+    # Точка срыва — БЕЗ графики: перебивка/чёрный экран + звук/чат
+    stop music fadeout 0.5
+    play sound "audio/stop-stop.mp3"
+    e "Мгновение — и всё идёт не так. Слова — острые, как стекло. Сцена ломается."
+    scene black with hpunch
+    e "Камера дёргается. Кадр рвётся. Чат взрывается."
+    C "ЭЭЭ! ЧТО ЭТО БЫЛО?!"
+    C "ПЕРЕШЁЛ ГРАНЬ!"
+    play sound "audio/laugh.mp3"
+    e "Смех где-то сбоку переходит в гул. Кто-то кричит «Вырубай!»"
+
+    # Постфактум: последствия
+    scene dark_room with slow_dissolve
+    play music sad1 fadein 0.8
+    e "Тишина наступает резко. Монитор горит холодным светом. Кто-то закрывает дверь."
+    me "(тяжело дышит) …Чёрт. Это было лишнее."
+    $ REP -= 3
+    $ CTRL -= 2
+    $ CASH -= 100
+    $ FLAG_LEGAL = True
+    $ clamp_stats()
+
+    # Реакция вокруг
+    C "КЛИПЫ УЖЕ В СЕТИ!"
+    C "ВСЁ, ЕГО ОТМЕНЯТ!"
+    C "ЗВОНИ ПРЕДСТАВИТЕЛЮ!"
+    e "Телефон вибрирует без остановки. Сообщения, метки, «обсуждают все»."
+    e "Как Андрей реагирует?"
+    # Выбор стратегии: отрицать/извиниться/уйти на паузу
+    menu:
+
+            "Отрицать: «Вы всё переврали!» (риск эскалации)":
+                $ REP -= 2
+                $ CTRL -= 1
+                $ FLAG_BAN = True
+                $ clamp_stats()
+                me "Вы вообще видели контекст? Вы всё перегнули! Ничего криминального!"
+                C "ФУ! НЕ ВЕРИМ!"
+                e "Площадки начинают ставить ограничения. Новостные паблики берут тему."
+                jump ch4_afterchoice
+
+            "Извиниться публично: коротко и чётко (снижение огня)":
+                $ REP += 1
+                $ CTRL += 2
+                $ CASH -= 50
+                $ FLAG_APOLOGY = True
+                $ clamp_stats()
+                me "Я перегнул. Это неправильно. Извиняюсь. Видео сниму, эфиры пересоберу. Грань — есть грань."
+                C "ПРИНЯЛ. СЛЕДИ ЗА СЛОВАМИ!"
+                e "Часть аудитории выдыхает. СМИ фиксируют извинение."
+                jump ch4_afterchoice
+
+            "Уйти на паузу: выключить эфиры, взять ответственность (дорого, но взросло)":
+                $ CTRL += 3
+                $ REP -= 1
+                $ CASH -= 300
+                $ FLAG_BREAK = True
+                $ clamp_stats()
+                me "Стоп. Беру паузу. С командой разберём формат, пересмотрим правила. Я отвечаю за то, что делаю."
+                C "ДА, ТАК НАДО… НО БОЛЬНО!"
+                e "Шум слегка стихает. Появляется пространство для хода дальше."
+                jump ch4_afterchoice
+
+label ch4_afterchoice:
+
+    # Юридический хвост
+    if FLAG_LEGAL:
+        play sound "audio/ring.mp3"
+        e "Звонок от юристов. Сухие фразы, ссылки на статьи, «нужна встреча»."
+        me "(в сторону) Игра подорожала. Теперь каждый шаг — чек."
+        $ CASH -= 200
+        $ CTRL += 1
+        $ clamp_stats()
+
+    # Короткий прессинг медиа/площадок
+    if FLAG_BAN:
+        e "Одна из платформ пишет: «Временное ограничение эфиров». Несколько брендов ставят паузу."
+        $ REP -= 1
+        $ clamp_stats()
+    elif FLAG_APOLOGY:
+        e "Несколько пабликов отмечают извинение. Волна негатива не уходит, но острота падает."
+        $ REP += 1
+        $ clamp_stats()
+
+    # Мини-арка «безумия от славы и денег» — внутренний кризис
+    scene loft_empty with slow_dissolve
+    e "Комната, ещё вчера полная людей, теперь кажется слишком большой. Деньги есть, шум был, но пустота только громче."
+    me "Вам всем шоу нужно, да? А мне — чтоб не превратиться в шум и тень."
+    if CTRL <= 3:
+        me "(сжимает кулак) Ещё чуть-чуть — и я сам себе враг."
+    else:
+        me "(ровно) Держу линию. Любой ценой."
+    e "Что дальше?"
+    # Ход вперёд: три дорожки на следующую главу
+    menu:
+
+            "Собрать новый «белый» формат: правила, контракт с медиаплощадкой (курс на реабилитацию)":
+                $ CTRL += 2
+                $ REP += 1
+                $ clamp_stats()
+                $ persistent.path_rebuild = True
+                jump ch4_outro
+            "Сделать «камбэк-ночь»: один эфир, но по правилам (риск, шанс вернуть онлайн)":
+                $ REP += 2
+                $ CTRL -= 1
+                $ CASH += 150
+                $ clamp_stats()
+                $ persistent.path_comeback = True
+                jump ch4_outro
+            "Уйти в «серые» интеграции: быстро закрыть дыры деньгами (удар по репутации)":
+                $ CASH += 600
+                $ REP -= 2
+                $ FLAG_CASINO = True
+                $ clamp_stats()
+                $ persistent.path_grey = True
+                jump ch4_outro
+
+label ch4_outro:
+    stop music fadeout 1.0
+    scene black with fade
+    centered "{size=64}{b}Глава IV — завершена{/b}{/size}"
+    $ persistent.REP_ch4 = REP
+    $ persistent.CASH_ch4 = CASH
+    $ persistent.CTRL_ch4 = CTRL
+    return
 
 
     return
