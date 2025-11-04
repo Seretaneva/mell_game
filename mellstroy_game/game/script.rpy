@@ -725,25 +725,29 @@ label chapter4:
     hide text
 
     # Он уже «на вершине»
-    scene party at truecenter:
+    scene big_party at truecenter:
         xysize (1920,1080)
     play music party_music fadein 1.0
     show screen statbar
 
     e "Вечер. Онлайны бьют рекорды. Комната — как студия: свет, камеры, люди. Донаты летят, чат трещит."
     $CASH +=20000
-    show mell_y2 at left:
-        xysize (1400, 800)
-
+    show mel6 at left:
+        xysize (1000, 1000)
+    with moveinleft
     C "ГОСТЕЙ БОЛЬШЕ! ДВИЖ!"
     C "ТОП МОМЕНТЫ, ПОГНАЛИ!"
     play sound laugh
     me "Бляяя. Сейчас будет весело, нахуй!"
-
+    show alena at right:
+         xysize (1400, 800)
+    with moveinright
     # Разгон — напряжение растёт
     "Гость" "Покажи, что ты топчик!?"
+    play sound krasnii
     menu:
         "Не сдержаться и ударить (риск последствий)":
+
             jump ch4_choice_attack
 
 
@@ -759,11 +763,13 @@ label chapter4:
         stop music fadeout 0.5
         play sound "audio/stop-stop.mp3"
         scene black with hpunch
+        play sound dovlenie
         e "Вспышка. Руки дрожат. Комната замолкает на долю секунды, а потом взрывается шумом."
         C "ЭЭЭ! ТЫ ЧЁ?!"
-        play sound "audio/laugh.mp3"
+        scene big_party at truecenter:
+            xysize (1920,1080)
+        with Fade(1.0, 1.0, 1.0)
         e "Камера дёрнулась. Чат лихорадит, донаты летят — но воздух стал тяжёлым."
-
 
         $ REP -= 4
         $ CTRL -= 3
@@ -772,7 +778,10 @@ label chapter4:
         $ FLAG_VIRAL = True # момент уходит в вирал
         $ clamp_stats()
 
-
+        show vah at left:
+            xysize (1400, 800)
+        with moveinleft
+        play sound suka
         me "…Бля. Перегнул."
         play music sad1 fadein 0.8
         jump ch4_afterchoice
@@ -782,10 +791,9 @@ label chapter4:
 
     label ch4_choice_resist:
         # Спокойная деэскалация в кадре
-        me "Стоп. Не перегибаем. Разошлись по местам."
+
+        me "Пошла нахуй отсюда!"
         e "Он делает шаг назад и опускает руки. Сцена сдувается, но в комнате становится легче дышать."
-
-
         $ CTRL += 3
         $ REP += 1
         $ CASH -= 50
@@ -796,159 +804,90 @@ label chapter4:
         play sound "audio/click.mp3"
         jump ch4_afterchoice
 
-
-
-
     label ch4_choice_off:
         # Моментальное выключение эфира
         stop music fadeout 0.7
         play sound "audio/click.mp3"
-        scene dark_room with fade
+        scene room4 at truecenter:
+             xysize (1920,1080)
+        with fade
         e "Экран гаснет. Свет камер тухнет. В квартире — только тишина и короткое эхо шагов."
-
-
         $ CTRL += 4
         $ REP -= 1
         $ CASH -= 200
         $ FLAG_BREAK = True # объявил паузу
         $ clamp_stats()
-
-
+        show mell_y_3 at left:
+            xysize (1400, 800)
+        with moveinleft
         me "Эфир — стоп. Разберёмся без шоу."
         play music sad1 fadein 0.8
         jump ch4_afterchoice
-#     me "Делаем импров. Кто не тянет — уходит из кадра. Всё честно."
-#     e "Смех, толчки локтями, телефоны, вспышки. Ритм ускоряется. Андрей на грани — энергетика давит изнутри."
-#
-#     # Точка срыва — БЕЗ графики: перебивка/чёрный экран + звук/чат
-#     stop music fadeout 0.5
-#     play sound "audio/stop-stop.mp3"
-#     e "Мгновение — и всё идёт не так. Слова — острые, как стекло. Сцена ломается."
-#     scene black with hpunch
-#     e "Камера дёргается. Кадр рвётся. Чат взрывается."
-#     C "ЭЭЭ! ЧТО ЭТО БЫЛО?!"
-#     C "ПЕРЕШЁЛ ГРАНЬ!"
-#     play sound "audio/laugh.mp3"
-#     e "Смех где-то сбоку переходит в гул. Кто-то кричит «Вырубай!»"
-#
-#     # Постфактум: последствия
-#     scene dark_room with slow_dissolve
-#     play music sad1 fadein 0.8
-#     e "Тишина наступает резко. Монитор горит холодным светом. Кто-то закрывает дверь."
-#     me "(тяжело дышит) …Чёрт. Это было лишнее."
-#     $ REP -= 3
-#     $ CTRL -= 2
-#     $ CASH -= 100
-#     $ FLAG_LEGAL = True
-#     $ clamp_stats()
-#
-#     # Реакция вокруг
-#     C "КЛИПЫ УЖЕ В СЕТИ!"
-#     C "ВСЁ, ЕГО ОТМЕНЯТ!"
-#     C "ЗВОНИ ПРЕДСТАВИТЕЛЮ!"
-#     e "Телефон вибрирует без остановки. Сообщения, метки, «обсуждают все»."
-#     e "Как Андрей реагирует?"
-#     # Выбор стратегии: отрицать/извиниться/уйти на паузу
-#     menu:
-#
-#             "Отрицать: «Вы всё переврали!» (риск эскалации)":
-#                 $ REP -= 2
-#                 $ CTRL -= 1
-#                 $ FLAG_BAN = True
-#                 $ clamp_stats()
-#                 me "Вы вообще видели контекст? Вы всё перегнули! Ничего криминального!"
-#                 C "ФУ! НЕ ВЕРИМ!"
-#                 e "Площадки начинают ставить ограничения. Новостные паблики берут тему."
-#                 jump ch4_afterchoice
-#
-#             "Извиниться публично: коротко и чётко (снижение огня)":
-#                 $ REP += 1
-#                 $ CTRL += 2
-#                 $ CASH -= 50
-#                 $ FLAG_APOLOGY = True
-#                 $ clamp_stats()
-#                 me "Я перегнул. Это неправильно. Извиняюсь. Видео сниму, эфиры пересоберу. Грань — есть грань."
-#                 C "ПРИНЯЛ. СЛЕДИ ЗА СЛОВАМИ!"
-#                 e "Часть аудитории выдыхает. СМИ фиксируют извинение."
-#                 jump ch4_afterchoice
-#
-#             "Уйти на паузу: выключить эфиры, взять ответственность (дорого, но взросло)":
-#                 $ CTRL += 3
-#                 $ REP -= 1
-#                 $ CASH -= 300
-#                 $ FLAG_BREAK = True
-#                 $ clamp_stats()
-#                 me "Стоп. Беру паузу. С командой разберём формат, пересмотрим правила. Я отвечаю за то, что делаю."
-#                 C "ДА, ТАК НАДО… НО БОЛЬНО!"
-#                 e "Шум слегка стихает. Появляется пространство для хода дальше."
-#                 jump ch4_afterchoice
-#
-# label ch4_afterchoice:
-#
-#     # Юридический хвост
-#     if FLAG_LEGAL:
-#         play sound "audio/ring.mp3"
-#         e "Звонок от юристов. Сухие фразы, ссылки на статьи, «нужна встреча»."
-#         me "(в сторону) Игра подорожала. Теперь каждый шаг — чек."
-#         $ CASH -= 200
-#         $ CTRL += 1
-#         $ clamp_stats()
-#
-#     # Короткий прессинг медиа/площадок
-#     if FLAG_BAN:
-#         e "Одна из платформ пишет: «Временное ограничение эфиров». Несколько брендов ставят паузу."
-#         $ REP -= 1
-#         $ clamp_stats()
-#     elif FLAG_APOLOGY:
-#         e "Несколько пабликов отмечают извинение. Волна негатива не уходит, но острота падает."
-#         $ REP += 1
-#         $ clamp_stats()
-#
-#     # Мини-арка «безумия от славы и денег» — внутренний кризис
-#     scene loft_empty with slow_dissolve
-#     e "Комната, ещё вчера полная людей, теперь кажется слишком большой. Деньги есть, шум был, но пустота только громче."
-#     me "Вам всем шоу нужно, да? А мне — чтоб не превратиться в шум и тень."
-#     if CTRL <= 3:
-#         me "(сжимает кулак) Ещё чуть-чуть — и я сам себе враг."
-#     else:
-#         me "(ровно) Держу линию. Любой ценой."
-#     e "Что дальше?"
-#     # Ход вперёд: три дорожки на следующую главу
-#     menu:
-#
-#             "Собрать новый «белый» формат: правила, контракт с медиаплощадкой (курс на реабилитацию)":
-#                 $ CTRL += 2
-#                 $ REP += 1
-#                 $ clamp_stats()
-#                 $ persistent.path_rebuild = True
-#                 jump ch4_outro
-#             "Сделать «камбэк-ночь»: один эфир, но по правилам (риск, шанс вернуть онлайн)":
-#                 $ REP += 2
-#                 $ CTRL -= 1
-#                 play sound money
-#                 $ CASH += 150
-#                 $ clamp_stats()
-#                 $ persistent.path_comeback = True
-#                 jump ch4_outro
-#             "Уйти в «серые» интеграции: быстро закрыть дыры деньгами (удар по репутации)":
-#                 play sound money
-#                 $ CASH += 600
-#                 $ REP -= 2
-#                 $ FLAG_CASINO = True
-#                 $ clamp_stats()
-#                 $ persistent.path_grey = True
-#                 jump ch4_outro
-#
-# label ch4_outro:
-#     stop music fadeout 1.0
-#     scene black with fade
-#     centered "{size=64}{b}Глава IV — завершена{/b}{/size}"
-#     $ persistent.REP_ch4 = REP
-#     $ persistent.CASH_ch4 = CASH
-#     $ persistent.CTRL_ch4 = CTRL
-#     return
 
+    label ch4_afterchoice:
+
+    if FLAG_LEGAL:
+        play sound "audio/ring.mp3"
+        e "Телефон звенит без пауз. Сообщения от юриста, метки знакомых, сухие формулировки в почте."
+        me "Игру подорожали. Теперь каждый шаг — чек."
+        $ CASH -= 2000
+        $ CTRL += 1
+        $ clamp_stats()
+
+    if FLAG_VIRAL:
+        C "КЛИПЫ В ТРЕНДАХ! МОМЕНТ РАЗЛЕТЕЛСЯ!"
+
+        $ REP += 1
+        $ clamp_stats()
+
+
+    if FLAG_BREAK:
+        e "Он пишет короткий пост: «Нужна пауза. Пересобираю формат. Возвращусь с правилами»."
+        $ CTRL += 1
+        $ clamp_stats()
+
+
+        # Мягкая вилка следующего шага
+        e "Что дальше?"
+    menu:
+        "Публично извиниться и пересобрать формат (реабилитация)":
+            $ REP += 1
+            $ CTRL += 2
+            $ CASH -= 1000
+            $ FLAG_APOLOGY = True
+            $ clamp_stats()
+            me "Я перегнул. Извиняюсь. Пересоберём правила — границы есть."
+            jump ch4_outro
+
+
+        "Сделать камбэк‑стрим по правилам (риск, но шанс вернуть онлайн)":
+            $ REP += 2
+            $ CTRL -= 1
+            $ CASH += 150
+            $ clamp_stats()
+            me "Один вечер. Жёсткий, но по правилам. Без срывов. Погнали."
+            jump ch4_outro
+
+
+        "Уйти в серые интеграции, закрыть дыры деньгами (удар по репутации)":
+            $ CASH += 6000
+            $ REP -= 2
+            $ FLAG_CASINO = True
+            $ clamp_stats()
+            me "Ладно. Да и похуй вообще. Сама виновата."
+            jump ch4_outro
+
+    label ch4_outro:
+        stop music fadeout 1.0
+        scene black with fade
+        centered "{size=64}{b}Глава IV — завершена{/b}{/size}"
+        $ persistent.REP_ch4 = REP
+        $ persistent.CASH_ch4 = CASH
+        $ persistent.CTRL_ch4 = CTRL
 
     return
+
+
+
 
 
