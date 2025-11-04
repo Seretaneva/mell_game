@@ -108,7 +108,7 @@ default FLAG_VIRAL = False       # нарезка с вечеринки ушла
 # =========================
 screen statbar():
     frame:
-        align (0.02, 0.02)
+        align (0.02, 0.05)
         has hbox
         spacing 18
         frame:
@@ -164,6 +164,8 @@ define audio.badlo = "audio/badlo.mp3"
 define audio.dictuesh = "audio/dictuesh.mp3"
 define audio.patzan = "audio/patzan.mp3"
 define audio.krasnii = "audio/krasnii.mp3"
+define audio.money = "audio/money.mp3"
+define audio.dovlenie = "audio/dovlenie.mp3"
 # =========================================================
 # TRANZIȚII
 # =========================================================
@@ -260,7 +262,7 @@ label start:
     with fade
     pause 2
     hide text
-
+    show screen statbar
     # NARAȚIUNE ÎN TEXTBOX (scriere treptată)
     window show
     scene gomel_13 at truecenter:
@@ -304,6 +306,7 @@ label start:
 
     menu:
         "Позвонить брату.":
+            $ CTRL -= 1
             jump choice_1_1
         "Открыть коробку.":
             jump choice_1_2
@@ -331,18 +334,14 @@ label start:
         play sound yeah
         e "Внутри — новый, но простой компьютер. Без подсветки, без наворотов, обычный системник с недорогим монитором."
         m "Ахуеть..."
+        $REP +=1
         hide mellstroy
         with moveoutleft
 
         stop sound fadeout 0.5
         stop music fadeout 1.0
-    #-----------------------------------------CAP2
-        scene black
-        show text _("{size=70}{=centered_narr}Глава II — Первый стрим{/=centered_narr}{/size}") at truecenter
-        with fade
-        pause 2
-        hide text
 
+        show screen statbar
         scene dark_room at truecenter:
             xysize (1920, 1080)
         with fade
@@ -373,7 +372,7 @@ label start:
     m "Так... играем, как есть."
     play sound suka
     e"Через несколько минут он проигрывает катку."
-
+    $ CTRL -=1
 
     m "Да бля... серьёзно?"
 
@@ -383,7 +382,13 @@ label start:
 
             "Сдержаться и не ругаться":
                 jump choice_2_2_1
+                $CTRL +=2
+                $REP -=1
             "Сорваться и высказать всё":
+                play sound money
+                $REP +=2
+                $CTRL -=1
+                $CASH +=100
                 jump choice_2_2_2
 
     label choice_2_2_1:
@@ -397,6 +402,7 @@ label start:
         play sound krasnii
         m "Да что за хуйня?!"
         e "Он срывается, ударяет по столу. В чате — первый донат."
+        play sound money
         m "Эм... донат? За эту хуйню?!.."
         play sound laugh
         e "Андрей замечает, что после вспышки злости зрителей стало больше."
@@ -411,9 +417,10 @@ label start:
 
             "Позвать друзей, чтобы стрим был веселее":
                 jump choice_2_1
-
+                $REP +=2
             "Продолжить один, чтобы выработать свой стиль":
                 e "Нет, пока сам. Хочу понять, кто я и что делаю."
+
                 jump choice_2_2
     label choice_2_1:
 
@@ -437,12 +444,14 @@ label start:
         m "Если людям нравится бардак... значит, я устрою им шоу. Настоящее."
     stop music fadeout 2
 
-    #------------------------------------------CAP3
+    #------------------------------------------CAP2
+
     scene black
-    show text _("{size=70}{=centered_narr}Глава III — Игра началась{/=centered_narr}{/size}") at truecenter
+    show text _("{size=70}{=centered_narr}Глава II — Игра началась{/=centered_narr}{/size}") at truecenter
     with fade
     pause 2
     hide text
+    show screen statbar
     scene party at truecenter:
             xysize (1920, 1080)
     with fade
@@ -465,12 +474,21 @@ label start:
     menu:
 
             "Я слышал от подписчиков, что ты — шлюха, да?":
+                $REP +=2
+                play sound money
+                $CASH +=200
+                $CTRL -=1
                 jump choice_3_3_1
             "Ты можешь, пожалуйста, снять спасательный круг, блядь?":
                 jump choice_3_3_2
+                $REP +=3
+                play sound money
 
     label choice_3_3_1:
          me "Я слышал от подписчиков, что ты — шлюха, да?"
+         show botox2 at right:
+            xysize (700, 700)
+         with moveinright
          e "Девушка смотрит на него и отвечает:"
          e"Ты чё, ахуел, так со мной разговаривать?"
          play sound yeah fadein 0.5
@@ -484,6 +502,9 @@ label start:
          with moveinleft
 
          me "Это ты охуела!"
+         hide botox2
+
+         with moveoutright
          me "Охрана! Выведите эту шлюху из дома!"
          play sound laugh fadein 0.5
          jump choice_final_3_1
@@ -492,6 +513,7 @@ label start:
          $ renpy.movie_cutscene("videos/crug.webm")
          play sound am fadein 0.70
          $ REP += 2
+         $CASH +=500
          jump choice_final_3_1
 
     label choice_final_3_1:
@@ -501,6 +523,7 @@ label start:
         if not FLAG_VIRAL:
             $ FLAG_VIRAL = True
             $ REP += 2
+            play sound money
             $ CASH += 120
             $ clamp_stats()
             C "КЛИПАЙ! КЛИПАЙ! Это разлетится!"
@@ -576,6 +599,12 @@ label start:
             $ clamp_stats()
 
             play sound badlo fadein 0.5
+            hide mell_vshoke3
+            with moveoutleft
+
+            show mell_y2 at left:
+                xysize (1400, 900)
+            with moveinleft
             me "Ты чё несёшь, бл**? Это мою хату и эфир трогать нельзя, понял ?"
             stop sound
 
@@ -591,6 +620,14 @@ label start:
 # ---------- 2) PRIVATE (де-эскалация) ----------
     label door_private:
         play sound click
+
+        scene room4 at truecenter:
+            xysize (1920, 1080)
+        with fade
+
+        show mell_y_3 at left:
+            xysize (1400, 800)
+        with moveinleft
         e "Ты тихо отключаешь стрим. Экран гаснет, лампа мерцает."
         play sound knock_heavy
         e "Стук в дверь. За порогом слышен раздражённый голос."
@@ -634,6 +671,7 @@ label start:
     # Бонус/штраф в зависимости de cum a mers
     if REP >= 15 and CTRL >= 7:
         e "На утро сторис у местных пабликов: «Как провести вечеринку и не поссориться со всем домом»."
+        play sound money
         $ CASH += 200
         $ FLAG_MEDIA = True
         $ clamp_stats()
@@ -644,9 +682,10 @@ label start:
 
     # Короткая сцена послевкусия
     play music sad1 fadein 0.8
-
+    show mell_y_3 at left:
+            xysize (1400, 800)
     e  "Квартира затихает. Пластик стаканов, запах сладкой колы и дешёвых духов. Андрей сидит напротив чёрного монитора."
-    me "Всё это похоже на контроль. Но на самом деле — это тонкая грань. Один неверный шаг — и ты просто шум."
+    me "Заебало всё, хочу больше денег!."
     if FLAG_VIRAL:
         C "НАРЕЗКИ В ТРЕНДАХ! «Момент с дверью» — ТОП!"
         $ REP += 1
@@ -657,7 +696,7 @@ label start:
     e "Телефон вибрирует. Номер неизвестен."
     stop sound
     "Голос" "Привет, Андрей. Видели твой эфир. Есть предложение. Не телик, не радио. Крупнее. Встретимся?"
-    me "(внутри) Игра становится дороже. Вопрос — кто платит чек."
+    me "Что за хуй?"
     stop music fadeout 1.3
 
     scene black with fade
@@ -692,140 +731,222 @@ label chapter4:
     show screen statbar
 
     e "Вечер. Онлайны бьют рекорды. Комната — как студия: свет, камеры, люди. Донаты летят, чат трещит."
+    $CASH +=20000
+    show mell_y2 at left:
+        xysize (1400, 800)
+
     C "ГОСТЕЙ БОЛЬШЕ! ДВИЖ!"
     C "ТОП МОМЕНТЫ, ПОГНАЛИ!"
-    me "Сегодня делаем громче. Вы хотели шоу — получите. Без тормозов."
+    play sound laugh
+    me "Бляяя. Сейчас будет весело, нахуй!"
 
     # Разгон — напряжение растёт
-    "Гость" "Ну что, ставки? Танец, челлендж, импров?"
-    me "Делаем импров. Кто не тянет — уходит из кадра. Всё честно."
-    e "Смех, толчки локтями, телефоны, вспышки. Ритм ускоряется. Андрей на грани — энергетика давит изнутри."
-
-    # Точка срыва — БЕЗ графики: перебивка/чёрный экран + звук/чат
-    stop music fadeout 0.5
-    play sound "audio/stop-stop.mp3"
-    e "Мгновение — и всё идёт не так. Слова — острые, как стекло. Сцена ломается."
-    scene black with hpunch
-    e "Камера дёргается. Кадр рвётся. Чат взрывается."
-    C "ЭЭЭ! ЧТО ЭТО БЫЛО?!"
-    C "ПЕРЕШЁЛ ГРАНЬ!"
-    play sound "audio/laugh.mp3"
-    e "Смех где-то сбоку переходит в гул. Кто-то кричит «Вырубай!»"
-
-    # Постфактум: последствия
-    scene dark_room with slow_dissolve
-    play music sad1 fadein 0.8
-    e "Тишина наступает резко. Монитор горит холодным светом. Кто-то закрывает дверь."
-    me "(тяжело дышит) …Чёрт. Это было лишнее."
-    $ REP -= 3
-    $ CTRL -= 2
-    $ CASH -= 100
-    $ FLAG_LEGAL = True
-    $ clamp_stats()
-
-    # Реакция вокруг
-    C "КЛИПЫ УЖЕ В СЕТИ!"
-    C "ВСЁ, ЕГО ОТМЕНЯТ!"
-    C "ЗВОНИ ПРЕДСТАВИТЕЛЮ!"
-    e "Телефон вибрирует без остановки. Сообщения, метки, «обсуждают все»."
-    e "Как Андрей реагирует?"
-    # Выбор стратегии: отрицать/извиниться/уйти на паузу
+    "Гость" "Покажи, что ты топчик!?"
     menu:
+        "Не сдержаться и ударить (риск последствий)":
+            jump ch4_choice_attack
 
-            "Отрицать: «Вы всё переврали!» (риск эскалации)":
-                $ REP -= 2
-                $ CTRL -= 1
-                $ FLAG_BAN = True
-                $ clamp_stats()
-                me "Вы вообще видели контекст? Вы всё перегнули! Ничего криминального!"
-                C "ФУ! НЕ ВЕРИМ!"
-                e "Площадки начинают ставить ограничения. Новостные паблики берут тему."
-                jump ch4_afterchoice
 
-            "Извиниться публично: коротко и чётко (снижение огня)":
-                $ REP += 1
-                $ CTRL += 2
-                $ CASH -= 50
-                $ FLAG_APOLOGY = True
-                $ clamp_stats()
-                me "Я перегнул. Это неправильно. Извиняюсь. Видео сниму, эфиры пересоберу. Грань — есть грань."
-                C "ПРИНЯЛ. СЛЕДИ ЗА СЛОВАМИ!"
-                e "Часть аудитории выдыхает. СМИ фиксируют извинение."
-                jump ch4_afterchoice
+        "Сдержаться и отпустить (держать линию)":
+            jump ch4_choice_resist
 
-            "Уйти на паузу: выключить эфиры, взять ответственность (дорого, но взросло)":
-                $ CTRL += 3
-                $ REP -= 1
-                $ CASH -= 300
-                $ FLAG_BREAK = True
-                $ clamp_stats()
-                me "Стоп. Беру паузу. С командой разберём формат, пересмотрим правила. Я отвечаю за то, что делаю."
-                C "ДА, ТАК НАДО… НО БОЛЬНО!"
-                e "Шум слегка стихает. Появляется пространство для хода дальше."
-                jump ch4_afterchoice
 
-label ch4_afterchoice:
+        "Выключить стрим прямо сейчас":
+            jump ch4_choice_off
 
-    # Юридический хвост
-    if FLAG_LEGAL:
-        play sound "audio/ring.mp3"
-        e "Звонок от юристов. Сухие фразы, ссылки на статьи, «нужна встреча»."
-        me "(в сторону) Игра подорожала. Теперь каждый шаг — чек."
-        $ CASH -= 200
-        $ CTRL += 1
+    label ch4_choice_attack:
+        # Резкая сцена — без графических подробностей, с чёрной перебивкой
+        stop music fadeout 0.5
+        play sound "audio/stop-stop.mp3"
+        scene black with hpunch
+        e "Вспышка. Руки дрожат. Комната замолкает на долю секунды, а потом взрывается шумом."
+        C "ЭЭЭ! ТЫ ЧЁ?!"
+        play sound "audio/laugh.mp3"
+        e "Камера дёрнулась. Чат лихорадит, донаты летят — но воздух стал тяжёлым."
+
+
+        $ REP -= 4
+        $ CTRL -= 3
+        $ CASH += 300
+        $ FLAG_LEGAL = True # запускаем юридические последствия
+        $ FLAG_VIRAL = True # момент уходит в вирал
         $ clamp_stats()
 
-    # Короткий прессинг медиа/площадок
-    if FLAG_BAN:
-        e "Одна из платформ пишет: «Временное ограничение эфиров». Несколько брендов ставят паузу."
-        $ REP -= 1
-        $ clamp_stats()
-    elif FLAG_APOLOGY:
-        e "Несколько пабликов отмечают извинение. Волна негатива не уходит, но острота падает."
+
+        me "…Бля. Перегнул."
+        play music sad1 fadein 0.8
+        jump ch4_afterchoice
+
+
+
+
+    label ch4_choice_resist:
+        # Спокойная деэскалация в кадре
+        me "Стоп. Не перегибаем. Разошлись по местам."
+        e "Он делает шаг назад и опускает руки. Сцена сдувается, но в комнате становится легче дышать."
+
+
+        $ CTRL += 3
         $ REP += 1
+        $ CASH -= 50
         $ clamp_stats()
 
-    # Мини-арка «безумия от славы и денег» — внутренний кризис
-    scene loft_empty with slow_dissolve
-    e "Комната, ещё вчера полная людей, теперь кажется слишком большой. Деньги есть, шум был, но пустота только громче."
-    me "Вам всем шоу нужно, да? А мне — чтоб не превратиться в шум и тень."
-    if CTRL <= 3:
-        me "(сжимает кулак) Ещё чуть-чуть — и я сам себе враг."
-    else:
-        me "(ровно) Держу линию. Любой ценой."
-    e "Что дальше?"
-    # Ход вперёд: три дорожки на следующую главу
-    menu:
 
-            "Собрать новый «белый» формат: правила, контракт с медиаплощадкой (курс на реабилитацию)":
-                $ CTRL += 2
-                $ REP += 1
-                $ clamp_stats()
-                $ persistent.path_rebuild = True
-                jump ch4_outro
-            "Сделать «камбэк-ночь»: один эфир, но по правилам (риск, шанс вернуть онлайн)":
-                $ REP += 2
-                $ CTRL -= 1
-                $ CASH += 150
-                $ clamp_stats()
-                $ persistent.path_comeback = True
-                jump ch4_outro
-            "Уйти в «серые» интеграции: быстро закрыть дыры деньгами (удар по репутации)":
-                $ CASH += 600
-                $ REP -= 2
-                $ FLAG_CASINO = True
-                $ clamp_stats()
-                $ persistent.path_grey = True
-                jump ch4_outro
+        C "ВОТ ЭТО КОНТРОЛЬ!"
+        play sound "audio/click.mp3"
+        jump ch4_afterchoice
 
-label ch4_outro:
-    stop music fadeout 1.0
-    scene black with fade
-    centered "{size=64}{b}Глава IV — завершена{/b}{/size}"
-    $ persistent.REP_ch4 = REP
-    $ persistent.CASH_ch4 = CASH
-    $ persistent.CTRL_ch4 = CTRL
-    return
+
+
+
+    label ch4_choice_off:
+        # Моментальное выключение эфира
+        stop music fadeout 0.7
+        play sound "audio/click.mp3"
+        scene dark_room with fade
+        e "Экран гаснет. Свет камер тухнет. В квартире — только тишина и короткое эхо шагов."
+
+
+        $ CTRL += 4
+        $ REP -= 1
+        $ CASH -= 200
+        $ FLAG_BREAK = True # объявил паузу
+        $ clamp_stats()
+
+
+        me "Эфир — стоп. Разберёмся без шоу."
+        play music sad1 fadein 0.8
+        jump ch4_afterchoice
+#     me "Делаем импров. Кто не тянет — уходит из кадра. Всё честно."
+#     e "Смех, толчки локтями, телефоны, вспышки. Ритм ускоряется. Андрей на грани — энергетика давит изнутри."
+#
+#     # Точка срыва — БЕЗ графики: перебивка/чёрный экран + звук/чат
+#     stop music fadeout 0.5
+#     play sound "audio/stop-stop.mp3"
+#     e "Мгновение — и всё идёт не так. Слова — острые, как стекло. Сцена ломается."
+#     scene black with hpunch
+#     e "Камера дёргается. Кадр рвётся. Чат взрывается."
+#     C "ЭЭЭ! ЧТО ЭТО БЫЛО?!"
+#     C "ПЕРЕШЁЛ ГРАНЬ!"
+#     play sound "audio/laugh.mp3"
+#     e "Смех где-то сбоку переходит в гул. Кто-то кричит «Вырубай!»"
+#
+#     # Постфактум: последствия
+#     scene dark_room with slow_dissolve
+#     play music sad1 fadein 0.8
+#     e "Тишина наступает резко. Монитор горит холодным светом. Кто-то закрывает дверь."
+#     me "(тяжело дышит) …Чёрт. Это было лишнее."
+#     $ REP -= 3
+#     $ CTRL -= 2
+#     $ CASH -= 100
+#     $ FLAG_LEGAL = True
+#     $ clamp_stats()
+#
+#     # Реакция вокруг
+#     C "КЛИПЫ УЖЕ В СЕТИ!"
+#     C "ВСЁ, ЕГО ОТМЕНЯТ!"
+#     C "ЗВОНИ ПРЕДСТАВИТЕЛЮ!"
+#     e "Телефон вибрирует без остановки. Сообщения, метки, «обсуждают все»."
+#     e "Как Андрей реагирует?"
+#     # Выбор стратегии: отрицать/извиниться/уйти на паузу
+#     menu:
+#
+#             "Отрицать: «Вы всё переврали!» (риск эскалации)":
+#                 $ REP -= 2
+#                 $ CTRL -= 1
+#                 $ FLAG_BAN = True
+#                 $ clamp_stats()
+#                 me "Вы вообще видели контекст? Вы всё перегнули! Ничего криминального!"
+#                 C "ФУ! НЕ ВЕРИМ!"
+#                 e "Площадки начинают ставить ограничения. Новостные паблики берут тему."
+#                 jump ch4_afterchoice
+#
+#             "Извиниться публично: коротко и чётко (снижение огня)":
+#                 $ REP += 1
+#                 $ CTRL += 2
+#                 $ CASH -= 50
+#                 $ FLAG_APOLOGY = True
+#                 $ clamp_stats()
+#                 me "Я перегнул. Это неправильно. Извиняюсь. Видео сниму, эфиры пересоберу. Грань — есть грань."
+#                 C "ПРИНЯЛ. СЛЕДИ ЗА СЛОВАМИ!"
+#                 e "Часть аудитории выдыхает. СМИ фиксируют извинение."
+#                 jump ch4_afterchoice
+#
+#             "Уйти на паузу: выключить эфиры, взять ответственность (дорого, но взросло)":
+#                 $ CTRL += 3
+#                 $ REP -= 1
+#                 $ CASH -= 300
+#                 $ FLAG_BREAK = True
+#                 $ clamp_stats()
+#                 me "Стоп. Беру паузу. С командой разберём формат, пересмотрим правила. Я отвечаю за то, что делаю."
+#                 C "ДА, ТАК НАДО… НО БОЛЬНО!"
+#                 e "Шум слегка стихает. Появляется пространство для хода дальше."
+#                 jump ch4_afterchoice
+#
+# label ch4_afterchoice:
+#
+#     # Юридический хвост
+#     if FLAG_LEGAL:
+#         play sound "audio/ring.mp3"
+#         e "Звонок от юристов. Сухие фразы, ссылки на статьи, «нужна встреча»."
+#         me "(в сторону) Игра подорожала. Теперь каждый шаг — чек."
+#         $ CASH -= 200
+#         $ CTRL += 1
+#         $ clamp_stats()
+#
+#     # Короткий прессинг медиа/площадок
+#     if FLAG_BAN:
+#         e "Одна из платформ пишет: «Временное ограничение эфиров». Несколько брендов ставят паузу."
+#         $ REP -= 1
+#         $ clamp_stats()
+#     elif FLAG_APOLOGY:
+#         e "Несколько пабликов отмечают извинение. Волна негатива не уходит, но острота падает."
+#         $ REP += 1
+#         $ clamp_stats()
+#
+#     # Мини-арка «безумия от славы и денег» — внутренний кризис
+#     scene loft_empty with slow_dissolve
+#     e "Комната, ещё вчера полная людей, теперь кажется слишком большой. Деньги есть, шум был, но пустота только громче."
+#     me "Вам всем шоу нужно, да? А мне — чтоб не превратиться в шум и тень."
+#     if CTRL <= 3:
+#         me "(сжимает кулак) Ещё чуть-чуть — и я сам себе враг."
+#     else:
+#         me "(ровно) Держу линию. Любой ценой."
+#     e "Что дальше?"
+#     # Ход вперёд: три дорожки на следующую главу
+#     menu:
+#
+#             "Собрать новый «белый» формат: правила, контракт с медиаплощадкой (курс на реабилитацию)":
+#                 $ CTRL += 2
+#                 $ REP += 1
+#                 $ clamp_stats()
+#                 $ persistent.path_rebuild = True
+#                 jump ch4_outro
+#             "Сделать «камбэк-ночь»: один эфир, но по правилам (риск, шанс вернуть онлайн)":
+#                 $ REP += 2
+#                 $ CTRL -= 1
+#                 play sound money
+#                 $ CASH += 150
+#                 $ clamp_stats()
+#                 $ persistent.path_comeback = True
+#                 jump ch4_outro
+#             "Уйти в «серые» интеграции: быстро закрыть дыры деньгами (удар по репутации)":
+#                 play sound money
+#                 $ CASH += 600
+#                 $ REP -= 2
+#                 $ FLAG_CASINO = True
+#                 $ clamp_stats()
+#                 $ persistent.path_grey = True
+#                 jump ch4_outro
+#
+# label ch4_outro:
+#     stop music fadeout 1.0
+#     scene black with fade
+#     centered "{size=64}{b}Глава IV — завершена{/b}{/size}"
+#     $ persistent.REP_ch4 = REP
+#     $ persistent.CASH_ch4 = CASH
+#     $ persistent.CTRL_ch4 = CTRL
+#     return
 
 
     return
