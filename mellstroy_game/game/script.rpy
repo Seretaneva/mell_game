@@ -166,6 +166,7 @@ define audio.patzan = "audio/patzan.mp3"
 define audio.krasnii = "audio/krasnii.mp3"
 define audio.money = "audio/money.mp3"
 define audio.dovlenie = "audio/dovlenie.mp3"
+define audio.punch = "audio/punch.mp3"
 # =========================================================
 # TRANZIȚII
 # =========================================================
@@ -571,7 +572,7 @@ label start:
 
         e "Ты распахиваешь дверь. На пороге стоит сосед — злой, в халате, с телефоном в руке."
         $ FLAG_NEIGHBORS = True
-        play sound baclajan fadein 0.5
+        play sound patzan fadein 0.5
         "Сосед" "Вы что, бл**? Ночь на дворе! Это что за цирк, мать вашу?!"
 
 
@@ -793,6 +794,9 @@ label chapter4:
         # Спокойная деэскалация в кадре
 
         me "Пошла нахуй отсюда!"
+        play sound punch
+        hide alena
+        with moveoutright
         e "Он делает шаг назад и опускает руки. Сцена сдувается, но в комнате становится легче дышать."
         $ CTRL += 3
         $ REP += 1
@@ -828,7 +832,7 @@ label chapter4:
 
     if FLAG_LEGAL:
         play sound "audio/ring.mp3"
-        e "Телефон звенит без пауз. Сообщения от юриста, метки знакомых, сухие формулировки в почте."
+        e "Телефон звонит без пауз. Сообщения от юриста, метки знакомых, сухие формулировки в почте."
         me "Игру подорожали. Теперь каждый шаг — чек."
         $ CASH -= 2000
         $ CTRL += 1
@@ -880,12 +884,184 @@ label chapter4:
     label ch4_outro:
         stop music fadeout 1.0
         scene black with fade
-        centered "{size=64}{b}Глава IV — завершена{/b}{/size}"
+        centered "{size=64}{=centered_narr}Глава IV — завершена{/centered_narr}{/size}"
         $ persistent.REP_ch4 = REP
         $ persistent.CASH_ch4 = CASH
         $ persistent.CTRL_ch4 = CTRL
+#---------------------------------------------------------------CAP 5 --------------------------------------------
+    label chapter5:
 
-    return
+        scene black
+        show text _("{size=70}{=centered_narr}Глава V — После шума{/=centered_narr}{/size}") at truecenter
+        with fade
+        pause 2
+        hide text
+
+        play music sad1 fadein 1.0
+
+        scene loft_empty at truecenter:
+            xysize (1920,1080)
+        with fade
+        show screen statbar
+        e "Прошло два года. Сцены сменились, но Мелстрой всё реже включает камеру."
+        e "Квартира больше похожа на музей успеха: бутылки, пыль, сувениры и мониторы без сигнала."
+        show mell_y_3 at left:
+            xysize (1400,800)
+        with moveinleft
+        me "Столько шума... ради чего?"
+        e "Телефон молчит. Иногда он включает стрим, но уже без драйва. Зрители видят усталость."
+        e "Однажды он просыпается и думает — {i}или поменять жизнь, или закончить всё.{/i}"
+        e "Что он выберет?"
+    # Ultima alegere – influențează subtil статистики și servește ca punte narativă
+        e "Перед ним — телефон, старый микрофон и комната, где от эха когда-то кружилась голова."
+
+    menu:
+        "Ответить на внезапный звонок и выйти из дома":
+            $ last_step = "call"
+            play sound ring
+            $ REP += 2
+            $ CTRL += 1
+            $ CASH -= 100
+            $ clamp_stats()
+            e "Он берёт трубку: на линии — тишина, короткие гудки срываются."
+            e "Он всё равно выходит. Холодный воздух бьёт в лицо, город шумит ровно и спокойно."
+            e "Где-то внутри загорается тонкая искра — не из-за звонка, а потому что он, наконец, сделал шаг."
+
+        "Отключить телефон и закрыть шторы":
+            $ last_step = "shut"
+            play sound "audio/click.mp3"
+            $ CTRL -= 1
+            $ REP -= 1
+            $ clamp_stats()
+            e "Экран гаснет. Шторы ложатся плотной складкой, комната уменьшается."
+            e "На тумбочке мигнёт уведомление, но он не смотрит. В тишине слышно, как тикнет часы и как дышит дом."
+
+        "Включить камеру и записать честное обращение к себе":
+            $ last_step = "record"
+            play sound "audio/yeah.mp3"
+            $ CTRL += 2
+            $ REP += 1
+            $ clamp_stats()
+            e "Красный огонёк камеры мигает. Он говорит не зрителям — себе, без монтажа и масок."
+            e "Видео остаётся в черновиках. Но впервые за долгое время он слышит свой настоящий голос."
+
+    # Mică tranziție coerentă înainte de verdict
+    if last_step == "call":
+        e "Он идёт без цели: витрины, редкие прохожие, запах кофе на углу. В голове собирается план — ещё не чёткий."
+    elif last_step == "shut":
+        e "Он садится на пол, прислоняется к стене. Мысли тяжелеют. За дверью кто-то смеётся — и смех уходит вдалеке."
+    elif last_step == "record":
+        e "Он просматривает черновик ещё раз. Там — усталость и честность. Из таких вещей строят что-то новое."
+
+    # -------------------------------
+    # DECIZIE AUTOMATĂ A FINALULUI (în funcție de statistici)
+    # -------------------------------
+    $ _alone_score  = (CASH >= 15000)*2 + (CTRL <= 5)*2 + (REP <= 8)
+    $ _love_score   = (REP >= 16)*2   + (CTRL >= 8)*2   + (CASH <= 8000)
+    $ _reb_score    = (CTRL >= 10)*2  + (REP >= 12)     + (CASH >= 5000)
+
+    if CASH >= 15000 and CTRL <= 5 and REP < 15:
+        jump ch5_path_alone
+    elif REP >= 16 and CTRL >= 8:
+        jump ch5_path_love
+    elif CTRL >= 10 or (REP >= 12 and CASH >= 5000):
+        jump ch5_path_rebuild
+    else:
+        if _reb_score >= _love_score and _reb_score >= _alone_score:
+            jump ch5_path_rebuild
+        elif _love_score >= _alone_score:
+            jump ch5_path_love
+        else:
+            jump ch5_path_alone
+
+
+    label ch5_path_alone:
+        play sound "audio/stop-stop.mp3"
+        if last_step == "shut":
+            e "Телефон молчит, шторы закрыты. Его решение стать тише оказалось слишком громким."
+        elif last_step == "call":
+            e "Он возвращается домой ближе к ночи. Шаг сделал — но сил не хватило сделать второй."
+        else:
+            e "Черновик так и остаётся в папке. Без отправки, без ответа."
+        scene night_city at truecenter:
+            xysize (1920,1080)
+        with fade
+        e "Снаружи город шумит, а внутри — только эхо старых фраз и донатов."
+        me "Да и похуй. Всё равно все были временные."
+        play sound "audio/dovlenie.mp3"
+        e "Он перестаёт выходить. Друзья исчезают, комната темнеет."
+        stop music fadeout 2
+        play music "audio/sad1.mp3" fadein 2
+        e "Иногда он включает старый стрим, слушает себя. И улыбается, но глаза пустые."
+        me "Меня больше ничего не радует. Девушки, деньги, алкоголь — пиздец. Ничего уже не имеет смысла. Всё одно и то же."
+        me "Отца нет..."
+        centered "{size=60}{b}ФИНАЛ I — ПУСТОТА{/b}{/size}"
+        $ persistent.ENDING = "alone"
+        return
+
+
+    label ch5_path_love:
+        play sound ring
+        if last_step == "call":
+            e "Тот самый номер перезванивает уже на улице. На этот раз — живой голос."
+            "Голос" "Ты, кажется, забыл, как жить, Мелстрой. Иди к набережной."
+        elif last_step == "record":
+            e "На честный черновик приходит ответ: «Спасибо, что сказал это вслух. Приходи на берег — просто поговорим»."
+        else:  # shut
+            e "Он всё же выходит за хлебом среди ночи. У витрины — девушка с термосом и уставшими глазами."
+        stop sound
+        play music "audio/cool_music.mp3" fadein 1.5
+        scene park_day at truecenter:
+            xysize (1920,1080)
+        with slow_dissolve
+        e "Воздух другой. Люди не смотрят как на легенду, просто улыбаются."
+        show girl_smile at right:
+            xysize (900,900)
+        with moveinright
+        e "Её зовут Аня. Она не знала, кто он такой. И, может, в этом было спасение."
+        me "Я не стример. Просто парень, который устал."
+        "Аня" "Тогда начни с нуля. Без лайков."
+        e "Они идут по улице. Впервые за долгое время Мелстрой чувствует, что живой."
+        play sound "audio/money.mp3"
+        $ REP += 3
+        $ CTRL += 3
+        $ CASH -= 500
+        $ clamp_stats()
+        centered "{size=60}{b}ФИНАЛ II — ЛЮБОВЬ{/b}{/size}"
+        $ persistent.ENDING = "love"
+        return
+
+
+    label ch5_path_rebuild:
+        if last_step == "record":
+            e "Из честного черновика рождается план. Не хайп — структура."
+        elif last_step == "call":
+            e "Прогулка без цели даёт ему идею. Не возвращаться в старый формат — построить новый."
+        else: # shut
+            e "В темноте приходит мысль: если не можешь выключить шум, измени правила."
+        play music "audio/party_music.mp3" fadein 1.0
+        e "Он снова включает камеры. Но теперь — не ради донатов."
+        e "Проект называется {b}«MELLSTROY.GAME»{/b}."
+        play sound "audio/yeah.mp3"
+        C "СТАРЫЙ МЕЛСТРОЙ ВЕРНУЛСЯ, НО ДРУГОЙ!"
+        show mell_y2 at left:
+            xysize (1200,800)
+        with moveinleft
+        me "Если я могу менять себя — значит, можно менять систему."
+        e "Под его руководством рождается новая волна. Чат гудит, но теперь — с уважением."
+        play sound "audio/money.mp3"
+        $ REP += 5
+        $ CTRL += 4
+        $ CASH += 10000
+        $ clamp_stats()
+        e "Он улыбается. На этот раз — честно."
+        centered "{size=60}{b}ФИНАЛ III — ПЕРЕРОЖДЕНИЕ{/b}{/size}"
+        $ persistent.ENDING = "rebuild"
+        return
+
+
+
+
 
 
 
