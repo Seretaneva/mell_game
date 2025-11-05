@@ -178,11 +178,11 @@ define slow_dissolve = Dissolve(1.0)
 # SCENĂ
 # =========================================================
 label start:
-    scene black
-    scene logo3 at truecenter:
-        xysize (1920, 1080)
-    with fade
-    pause 2
+    scene black                          # fundal negru
+    show expression "images/logo2.png" at truecenter:
+        zoom 0.65                        # micșorează logo-ul (ajustează 0.35 cum vrei)
+    with fade                            # apare lin
+    pause 3
     $ renpy.music.set_volume(0.5, channel='music')
     stop music fadeout 2
     scene black
@@ -574,8 +574,8 @@ label start:
 # ---------- 1) PUBLIC (шоу) ----------
     label door_public:
         play music party_music fadein 0.7
-        show neighbor at right:
-             xysize (500, 800)
+        show old at right:
+             xysize (1100, 800)
         with moveinright
 
         e "Ты распахиваешь дверь. На пороге стоит сосед — злой, в халате, с телефоном в руке."
@@ -598,7 +598,7 @@ label start:
             me "Будет тихо. Не кипятись, живём рядом — без цирка."
             "Сосед" "Окей..."
             e "Сосед уходит, дверь захлопывается. В квартире снова гул и свет ламп."
-            hide neighbor
+            hide old
             jump post_door
 
 
@@ -624,7 +624,7 @@ label start:
             stop sound
 
             C "ЩАС БУДЕТ!"
-            hide neighbor
+            hide old
             jump post_door
 
 # ---------- 2) PRIVATE (де-эскалация) ----------
@@ -641,8 +641,8 @@ label start:
         e "Ты тихо отключаешь стрим. Экран гаснет, лампа мерцает."
         play sound knock_heavy
         e "Стук в дверь. За порогом слышен раздражённый голос."
-        show neighbor at right:
-             xysize (500, 800)
+        show old at right:
+             xysize (1100, 800)
         with moveinright
         play sound patzan fadein 0.5
         "Сосед" "Эй, ты там! Полночь, бл**! Музыку прикрути уже!"
@@ -650,11 +650,12 @@ label start:
         me "Успокойся, сосед. Всё, тише делаем, люди уходят."
         "Сосед" "Каждую ночь одно и то же! Мы тебе не клуб под окном держим!"
         me "Я понял, бл**, хватит орать. Всё, вопрос закрыт. Иди спи спокойно."
+        stop sound
         $ CTRL += 1
         $ CASH -= 80
         $ REP += 1
         $ clamp_stats()
-        hide neighbor
+        hide old
         jump post_door
 
 # ---------- 3) HANDLER (серый компромисс) ----------
@@ -665,11 +666,11 @@ label start:
         $ CTRL += 1
         $ REP -= 1
         $ clamp_stats()
-        show neighbor at right:
-             xysize (500, 800)
+        show old at right:
+             xysize (1100, 800)
         with moveinright
         "Сосед" "Ладно. Только если сегодня — конец."
-        hide neighbor
+        hide old
         jump post_door
 
 # ---------- POST DOOR: финальная раздача и хук ----------
@@ -749,10 +750,19 @@ label chapter4:
     C "ТОП МОМЕНТЫ, ПОГНАЛИ!"
     play sound laugh
     me "Бляяя. Сейчас будет весело, нахуй!"
+    scene black
+    show text _("{size=70}{=centered_narr}Через несколько часов....{/=centered_narr}{/size}") at truecenter
+    with fade
+    pause 2
+    hide text
+    scene big_party at truecenter:
+        xysize (1920,1080)
+    with fade
     show alena at right:
          xysize (1400, 800)
     with moveinright
     # Разгон — напряжение растёт
+    "Гость" "Я лучше тебя, я сексуальная, а ты?"
     "Гость" "Покажи, что ты топчик!?"
     play sound krasnii
     menu:
