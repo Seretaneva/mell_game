@@ -167,6 +167,8 @@ define audio.krasnii = "audio/krasnii.mp3"
 define audio.money = "audio/money.mp3"
 define audio.dovlenie = "audio/dovlenie.mp3"
 define audio.punch = "audio/punch.mp3"
+define audio.romantic = "audio/romantic.mp3"
+define audio.girl_laugh = "audio/girl_laugh.mp3"
 # =========================================================
 # TRANZIȚII
 # =========================================================
@@ -444,7 +446,9 @@ label start:
     label choice_final_2:
         m "Если людям нравится бардак... значит, я устрою им шоу. Настоящее."
     stop music fadeout 2
-
+    hide screen statbar
+    scene black with fade
+    centered "{size=70}{=centered_narr}Глава I — завершена{/centered_narr}{/size}"
     #------------------------------------------CAP2
 
     scene black
@@ -601,15 +605,16 @@ label start:
 
             play sound badlo fadein 0.5
             hide mell_vshoke3
+            hide mell_y
             with moveoutleft
 
-            show mell_y2 at left:
+            show mell_y_3 at left:
                 xysize (1400, 900)
             with moveinleft
             me "Ты чё несёшь, бл**? Это мою хату и эфир трогать нельзя, понял ?"
             stop sound
 
-            play sound patzan fadein 0.5
+
             "Сосед" "Ты на кого голос поднимаешь? Сейчас полицию вызову, понял?!"
             me "Давай, зови! Мне скрывать нечего. Только потом не ной, когда сам на стрим попадёшь!"
             stop sound
@@ -701,13 +706,13 @@ label start:
     stop music fadeout 1.3
 
     scene black with fade
-    centered "{size=70}{=centered_narr}Глава III — завершена{/centered_narr}{/size}"
+    centered "{size=70}{=centered_narr}Глава II — завершена{/centered_narr}{/size}"
     $ persistent.REP_ch2 = REP
     $ persistent.CASH_ch2 = CASH
     $ persistent.CTRL_ch2 = CTRL
 
-    # =========================
-# ГЛАВА IV — «Цена шума»-----------------------------------------------------------------------------------
+    hide screen statbar   # =========================
+# ГЛАВА III — «Цена шума»-----------------------------------------------------------------------------------
 # Сильная слава → срыв → последствия
 # =========================
 
@@ -720,7 +725,7 @@ default FLAG_BREAK = False        # объявил паузу/рефлексии
 label chapter4:
 
     scene black
-    show text _("{size=70}{=centered_narr}Глава IV — Цена шума{/=centered_narr}{/size}") at truecenter
+    show text _("{size=70}{=centered_narr}Глава III — Цена шума{/=centered_narr}{/size}") at truecenter
     with fade
     pause 2
     hide text
@@ -769,7 +774,7 @@ label chapter4:
         C "ЭЭЭ! ТЫ ЧЁ?!"
         scene big_party at truecenter:
             xysize (1920,1080)
-        with Fade(1.0, 1.0, 1.0)
+        with Fade(2.5, 1.0, 1.0)
         e "Камера дёрнулась. Чат лихорадит, донаты летят — но воздух стал тяжёлым."
 
         $ REP -= 4
@@ -888,18 +893,19 @@ label chapter4:
         $ persistent.REP_ch4 = REP
         $ persistent.CASH_ch4 = CASH
         $ persistent.CTRL_ch4 = CTRL
-#---------------------------------------------------------------CAP 5 --------------------------------------------
+        hide screen statbar
+#---------------------------------------------------------------CAP 4 --------------------------------------------
     label chapter5:
 
         scene black
-        show text _("{size=70}{=centered_narr}Глава V — После шума{/=centered_narr}{/size}") at truecenter
+        show text _("{size=70}{=centered_narr}Глава IV — После шума{/=centered_narr}{/size}") at truecenter
         with fade
         pause 2
         hide text
 
         play music sad1 fadein 1.0
 
-        scene loft_empty at truecenter:
+        scene room6 at truecenter:
             xysize (1920,1080)
         with fade
         show screen statbar
@@ -924,6 +930,9 @@ label chapter4:
             $ CASH -= 100
             $ clamp_stats()
             e "Он берёт трубку: на линии — тишина, короткие гудки срываются."
+            scene gomel_13 at truecenter:
+                xysize (1920,1080)
+            with fade
             e "Он всё равно выходит. Холодный воздух бьёт в лицо, город шумит ровно и спокойно."
             e "Где-то внутри загорается тонкая искра — не из-за звонка, а потому что он, наконец, сделал шаг."
 
@@ -934,6 +943,9 @@ label chapter4:
             $ REP -= 1
             $ clamp_stats()
             e "Экран гаснет. Шторы ложатся плотной складкой, комната уменьшается."
+            scene room4 at truecenter:
+                xysize (1920,1080)
+            with fade
             e "На тумбочке мигнёт уведомление, но он не смотрит. В тишине слышно, как тикнет часы и как дышит дом."
 
         "Включить камеру и записать честное обращение к себе":
@@ -944,6 +956,7 @@ label chapter4:
             $ clamp_stats()
             e "Красный огонёк камеры мигает. Он говорит не зрителям — себе, без монтажа и масок."
             e "Видео остаётся в черновиках. Но впервые за долгое время он слышит свой настоящий голос."
+            $ renpy.movie_cutscene("videos/sud.webm")
 
     # Mică tranziție coerentă înainte de verdict
     if last_step == "call":
@@ -983,8 +996,7 @@ label chapter4:
             e "Он возвращается домой ближе к ночи. Шаг сделал — но сил не хватило сделать второй."
         else:
             e "Черновик так и остаётся в папке. Без отправки, без ответа."
-        scene night_city at truecenter:
-            xysize (1920,1080)
+
         with fade
         e "Снаружи город шумит, а внутри — только эхо старых фраз и донатов."
         me "Да и похуй. Всё равно все были временные."
@@ -1004,32 +1016,59 @@ label chapter4:
         play sound ring
         if last_step == "call":
             e "Тот самый номер перезванивает уже на улице. На этот раз — живой голос."
-            "Голос" "Ты, кажется, забыл, как жить, Мелстрой. Иди к набережной."
+            "Голос" "Ты, кажется, забыл, как жить, Мелстрой. Выйди на свежий воздух, просто пройдись."
         elif last_step == "record":
-            e "На честный черновик приходит ответ: «Спасибо, что сказал это вслух. Приходи на берег — просто поговорим»."
+            scene room6 at truecenter:
+                xysize (1920,1080)
+            e "На честный черновик приходит ответ: «Спасибо, что сказал это вслух. Выйди, подыши, посмотри вокруг»."
         else:  # shut
-            e "Он всё же выходит за хлебом среди ночи. У витрины — девушка с термосом и уставшими глазами."
+            show mell_y_3 at left:
+                xysize (900,900)
+        with moveinleft
+        scene gomel_13 at truecenter:
+                xysize (1920,1080)
+        e "Он всё же выходит за хлебом среди ночи. Просто чтобы пройтись, успокоить мысли."
         stop sound
-        play music "audio/cool_music.mp3" fadein 1.5
-        scene park_day at truecenter:
+
+        play music "audio/romantic.mp3" fadein 1.5
+        scene park at truecenter:
             xysize (1920,1080)
         with slow_dissolve
-        e "Воздух другой. Люди не смотрят как на легенду, просто улыбаются."
-        show girl_smile at right:
-            xysize (900,900)
+        show mell_y_3 at left:
+            xysize (1500,800)
+        with moveinleft
+        e "Воздух другой. Небо будто чище, чем обычно. Он идёт, глядя в телефон, проверяя ленту, забыв про всё вокруг."
+        e "И вдруг — лёгкий удар, почти неслышный."
+        play sound "audio/bump.mp3"
+        e "Телефон чуть не падает из рук. Перед ним — девушка, растерянная, с термосом кофе и тёплой улыбкой."
+
+        show blonde at right:
+            xysize (550,800)
         with moveinright
-        e "Её зовут Аня. Она не знала, кто он такой. И, может, в этом было спасение."
-        me "Я не стример. Просто парень, который устал."
-        "Аня" "Тогда начни с нуля. Без лайков."
-        e "Они идут по улице. Впервые за долгое время Мелстрой чувствует, что живой."
+
+        "Девушка" "Ой! Прости, я не смотрела..."
+        me "Нет, это я... засмотрелся в экран, как идиот."
+        e "Они оба смеются. Неловкость рассеивается, как туман после дождя."
+
+        "Девушка" "Я Аня."
+        me "Я — просто парень, который слишком долго не поднимал голову от телефона."
+        play sound girl_laugh
+        e "Она улыбается."
+
+        "Аня" " Такое бывает, у всех бывают трудные периоды в жизни."
+        e "И так, среди утреннего шума города, начинается история, которая могла случиться только в тишине."
+        e "Он идёт рядом, чувствуя, что впервые за долгое время — живой."
+
         play sound "audio/money.mp3"
         $ REP += 3
         $ CTRL += 3
         $ CASH -= 500
         $ clamp_stats()
-        centered "{size=60}{b}ФИНАЛ II — ЛЮБОВЬ{/b}{/size}"
-        $ persistent.ENDING = "love"
-        return
+
+    centered "{size=60}{b}ФИНАЛ II — ЛЮБОВЬ{/b}{/size}"
+    $ persistent.ENDING = "love"
+    return
+
 
 
     label ch5_path_rebuild:
@@ -1044,6 +1083,7 @@ label chapter4:
         e "Проект называется {b}«MELLSTROY.GAME»{/b}."
         play sound "audio/yeah.mp3"
         C "СТАРЫЙ МЕЛСТРОЙ ВЕРНУЛСЯ, НО ДРУГОЙ!"
+        hide mell_y_3
         show mell_y2 at left:
             xysize (1200,800)
         with moveinleft
