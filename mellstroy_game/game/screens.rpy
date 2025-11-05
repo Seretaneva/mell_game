@@ -2,9 +2,8 @@
 ## Initialization
 ################################################################################
 image mellstroy_vid = Movie(size=(1920,1080), play="videos/mel2y.webm", loop=True)
-label before_main_menu:
-    $ _preferences.language = "russian"
-    return
+
+
 
 init offset = -1
 

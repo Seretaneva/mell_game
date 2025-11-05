@@ -3,7 +3,19 @@
 ## Lines beginning with two '#' marks are comments, and you shouldn't uncomment
 ## them. Lines beginning with a single '#' mark are commented-out code, and you
 ## may want to uncomment them when appropriate.
+init -1 python:
+    def _force_russian():
+        renpy.change_language("russian")
 
+    # La pornire nouă
+    config.start_callbacks.append(_force_russian)
+    # După ce se încarcă un save (ca să nu revină altă limbă)
+    config.after_load_callbacks.append(_force_russian)
+
+label before_main_menu:
+    $ renpy.change_language("russian")
+    $ renpy.music.stop(channel="narration", fadeout=0.5)
+    return
 ## Basics ######################################################################
 define config.main_menu_music = "audio/menu_music.mp3"    # sau "menu_music" dacă ai alias audio.
 define config.main_menu_music_fadein = 1.0
@@ -147,6 +159,7 @@ init python:
     _preferences.language = "russian"
 define config.save_directory = "mellstroy_game-1761065663"
 define config.language = "russian"
+
 
 ## Icon ########################################################################
 ##

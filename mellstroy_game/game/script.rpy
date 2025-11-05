@@ -178,7 +178,11 @@ define slow_dissolve = Dissolve(1.0)
 # SCENĂ
 # =========================================================
 label start:
-
+    scene black
+    scene logo3 at truecenter:
+        xysize (1920, 1080)
+    with fade
+    pause 2
     $ renpy.music.set_volume(0.5, channel='music')
     stop music fadeout 2
     scene black
@@ -973,7 +977,7 @@ label chapter4:
     $ _love_score   = (REP >= 16)*2   + (CTRL >= 8)*2   + (CASH <= 8000)
     $ _reb_score    = (CTRL >= 10)*2  + (REP >= 12)     + (CASH >= 5000)
 
-    if CASH >= 15000 and CTRL <= 5 and REP < 15:
+    if CASH >= 15000 and CTRL <= 5 and REP < 17:
         jump ch5_path_alone
     elif REP >= 16 and CTRL >= 8:
         jump ch5_path_love
@@ -999,8 +1003,15 @@ label chapter4:
 
         with fade
         e "Снаружи город шумит, а внутри — только эхо старых фраз и донатов."
+
+        show mell_y_3 at left:
+            xysize (1500,800)
+        with moveinleft
         me "Да и похуй. Всё равно все были временные."
         play sound "audio/dovlenie.mp3"
+        scene dark_room at truecenter:
+                xysize (1920,1080)
+        with fade
         e "Он перестаёт выходить. Друзья исчезают, комната темнеет."
         stop music fadeout 2
         play music "audio/sad1.mp3" fadein 2
@@ -1079,13 +1090,16 @@ label chapter4:
         else: # shut
             e "В темноте приходит мысль: если не можешь выключить шум, измени правила."
         play music "audio/party_music.mp3" fadein 1.0
+        scene room2 at truecenter:
+            xysize (1920,1080)
+        with slow_dissolve
         e "Он снова включает камеры. Но теперь — не ради донатов."
         e "Проект называется {b}«MELLSTROY.GAME»{/b}."
         play sound "audio/yeah.mp3"
         C "СТАРЫЙ МЕЛСТРОЙ ВЕРНУЛСЯ, НО ДРУГОЙ!"
         hide mell_y_3
-        show mell_y2 at left:
-            xysize (1200,800)
+        show mell_y at left:
+            xysize (1100,1200)
         with moveinleft
         me "Если я могу менять себя — значит, можно менять систему."
         e "Под его руководством рождается новая волна. Чат гудит, но теперь — с уважением."
